@@ -9,8 +9,7 @@
     <body>
         
         <header>
-            <h1>My To-Do List</h1>
-            <p>Add your tasks below.</p>
+            <h1>📝My To-Do List</h1>
             <p>
                 <strong>Remember:</strong> Complete your tasks before the end of the day.
             </p>
@@ -19,18 +18,19 @@
         <main>
 
             <section>
-                <h2>Tasks</h2>
+                <h2>My Tasks</h2>
                     
                 <form>
-                    <label for="taskInput">Task:</label>
-                    <input type="text" id="taskInput">
+                    <input type="text" id="taskInput" placeholder="Enter a new task">
 
-                    <button>Add Tasks</button>
+                    <button class="add-button">Add Tasks</button>
                 </form>
 
-                <p id="taskCount">Tasks: 0</p>
+                <div class="task-summary">
+                    <p id="taskCount">Tasks: 0</p>
 
-                <button id="clearTasks">Clear All</button>
+                    <button id="clearTasks">Clear All</button>
+                </div>
 
                 <!-- This is the task list -->
                 <ul></ul>
