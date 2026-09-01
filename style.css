@@ -64,6 +64,21 @@ button:active {
     background-color: #C43D39;
 }
 
+.edit-input {
+    flex-grow: 1;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.edit-input:focus {
+    outline: 2px solid #E8894A;
+    border-color: #E8894A;
+}
+
 .task-summary {
     display: flex;
     justify-content: space-between;

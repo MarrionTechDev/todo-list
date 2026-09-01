@@ -6,6 +6,7 @@ const taskList = document.querySelector("ul");
 const taskCount = document.querySelector("#taskCount");
 const clearTasks = document.querySelector("#clearTasks");
 const currentDate = document.querySelector("#currentDate");
+const emptyMessage = document.querySelector("#emptyMessage");
 
 const today = new Date();
 
@@ -42,6 +43,13 @@ function updateTaskCount() {
     taskCount.textContent = `${completedTasks} / ${tasks.length} completed`;
 }
 
+function updateEmptyMessage() {
+    if (tasks.length === 0) {
+        emptyMessage.style.display = "block";
+    } else {
+        emptyMessage.style.display = "none";
+    }
+}
 
 function renderTask(taskObject) {
 
@@ -106,6 +114,8 @@ function renderTask(taskObject) {
             saveTasks();
         } else{
             editInput = document.createElement("input");
+
+            editInput.classList.add("edit-input");
         
             editInput.value = taskObject.name;
 
@@ -147,9 +157,11 @@ function renderTask(taskObject) {
 
         updateTaskCount();
 
+        updateEmptyMessage();
+
         saveTasks();
 
-        event.target.parentElement.remove();
+        li.remove();
 
     });
 
@@ -166,6 +178,8 @@ function renderTask(taskObject) {
 loadTasks();
 
 updateTaskCount();
+
+updateEmptyMessage();
 
 tasks.forEach(function(task) {
     renderTask(task);
@@ -190,6 +204,8 @@ form.addEventListener("submit", function(event) {
 
     updateTaskCount();
 
+    updateEmptyMessage();
+
     saveTasks();
 
     renderTask(taskObject);
@@ -212,5 +228,7 @@ clearTasks.addEventListener("click", function() {
         saveTasks();
 
         updateTaskCount();
+
+        updateEmptyMessage();
     }
 });
