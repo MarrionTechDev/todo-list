@@ -5,6 +5,15 @@ const form = document.querySelector("form");
 const taskList = document.querySelector("ul");
 const taskCount = document.querySelector("#taskCount");
 const clearTasks = document.querySelector("#clearTasks");
+const currentDate = document.querySelector("#currentDate");
+
+const today = new Date();
+
+currentDate.textContent = today.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+});
 
 function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));

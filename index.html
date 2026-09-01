@@ -18,7 +18,10 @@
         <main>
 
             <section>
-                <h2>My Tasks</h2>
+                <div class="task-header">
+                    <h2>My Tasks</h2>
+                    <span id="currentDate"></span>
+                </div>
                     
                 <form>
                     <input type="text" id="taskInput" placeholder="Enter a new task">
@@ -31,6 +34,8 @@
 
                     <button id="clearTasks">Clear All</button>
                 </div>
+                
+                <p id="emptyMessage">No tasks yet! Add something you'd like to get done today.</p>
 
                 <!-- This is the task list -->
                 <ul></ul>
