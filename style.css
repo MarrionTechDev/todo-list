@@ -197,6 +197,42 @@ h2 {
     margin-bottom: 15px;
 }
 
+.schedule-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 400px;
+    min-height: 400px;
+
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.month-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.month-container p {
+    margin: 0;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.calender {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+
 footer {
     text-align: center;
     margin-top: 25px;

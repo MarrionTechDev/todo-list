@@ -73,6 +73,123 @@ function renderTask(taskObject) {
     const span = document.createElement("span");
     span.textContent = taskObject.name;
 
+    // Scheduler
+    const scheduleButton = document.createElement("button");
+    scheduleButton.textContent = "Schedule";
+
+    scheduleButton.addEventListener("click", function() {
+
+        const scheduleWindow = document.createElement("div");
+        scheduleWindow.classList.add("schedule-window");
+        document.body.appendChild(scheduleWindow);
+
+        // Heading
+        const heading = document.createElement("h1");
+        heading.textContent = "Schedule";
+        scheduleWindow.appendChild(heading);
+        
+        // Current month
+        const currentMonth = new Date(2026, 8, 1);
+
+        // Month navigation container
+        const monthContainer = document.createElement("div");
+        monthContainer.classList.add("month-container");
+        scheduleWindow.appendChild(monthContainer);
+        
+        const monthNames = [
+                "January", "February", "March", "April", "May", "June", 
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+        // Previous month button
+        const previousMonth = document.createElement("button");
+        previousMonth.textContent = "<";
+        previousMonth.addEventListener("click", function(){
+            currentMonth.setMonth(currentMonth.getMonth() - 1);
+            updateMonthYear();
+            renderCalender();
+        })
+        monthContainer.appendChild(previousMonth);
+
+        // Create month + year text and update it
+        const monthYear = document.createElement("p");
+        monthContainer.appendChild(monthYear);
+
+        function updateMonthYear() {
+            const month = monthNames[currentMonth.getMonth()]
+            const year = currentMonth.getFullYear()
+
+            monthYear.textContent = `${month} ${year}`;
+        }
+        updateMonthYear();
+
+        // Next month button
+        const nextMonth = document.createElement("button");
+        nextMonth.textContent = ">";
+        nextMonth.addEventListener("click", function(){
+            currentMonth.setMonth(currentMonth.getMonth() + 1);
+            updateMonthYear();
+            renderCalender();
+        })
+        monthContainer.appendChild(nextMonth);
+
+        // Weekdays
+        const weekdayContainer = document.createElement("div");
+        weekdayContainer.classList.add("weekdays");
+        scheduleWindow.appendChild(weekdayContainer);
+
+        const weekdays = ["Sun", "Mon", "Tues", "Wed", "Thu", "Fri", "Sat"];
+
+        weekdays.forEach(function(day) {
+            const weekday = document.createElement("p");
+            weekday.textContent = day;
+            weekdayContainer.appendChild(weekday);
+        });
+        
+        // Calendar
+        const calender = document.createElement("div");
+        calender.classList.add("calender");
+        scheduleWindow.appendChild(calender);
+
+        
+        function renderCalender() {
+            calender.innerHTML = "";
+
+            // Calendar days
+            const daysInMonth = new Date(currentMonth.getFullYear(),currentMonth.getMonth() + 1, 0);
+            
+            // Empty spaces before first day
+            for (let i = 0; i < currentMonth.getDay(); i++) {
+                const emptyDay = document.createElement("p");
+                calender.appendChild(emptyDay);
+            }
+
+            // Actual calender days
+            for(let day = 1; day <= daysInMonth.getDate(); day++){
+                const dayElement = document.createElement("p");
+                dayElement.textContent = day;
+                calender.appendChild(dayElement); 
+            }   
+        }
+        renderCalender();
+        
+        
+        // Cancel button
+        const cancelButton = document.createElement("button");
+        cancelButton.textContent = "Cancel";
+
+        cancelButton.addEventListener("click", function() {
+                scheduleWindow.remove();
+        });
+        scheduleWindow.appendChild(cancelButton);
+    
+        // Save button
+        const savebutton = document.createElement("button");
+        savebutton.textContent = "Save";
+        scheduleWindow.appendChild(savebutton);
+
+    });
+
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
 
@@ -169,6 +286,7 @@ function renderTask(taskObject) {
     li.appendChild(span);
     li.appendChild(editButton);
     li.appendChild(deleteButton);
+    li.appendChild(scheduleButton);
     
 
     taskList.appendChild(li);
