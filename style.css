@@ -227,11 +227,52 @@ h2 {
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
-.calender {
+.calendar {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
+.calendar-day {
+    width: 35px;
+    height: 35px;
+
+    padding: 0;
+    margin: auto;
+
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+
+    color: black;
+    font: inherit;
+    cursor: pointer;
+}
+
+.calendar-day.today {
+    position: relative;
+}
+
+.calendar-day.today::after {
+    content: "";
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #e9854a;
+}
+
+.calendar-day.selected {
+    background: #e9854a;
+    color: white;
+}
+
+.calendar-day.today.selected::after {
+    background: white;
+}
 
 footer {
     text-align: center;

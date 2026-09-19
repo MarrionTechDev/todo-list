@@ -107,7 +107,7 @@ function renderTask(taskObject) {
         previousMonth.addEventListener("click", function(){
             currentMonth.setMonth(currentMonth.getMonth() - 1);
             updateMonthYear();
-            renderCalender();
+            renderCalendar();
         })
         monthContainer.appendChild(previousMonth);
 
@@ -129,7 +129,7 @@ function renderTask(taskObject) {
         nextMonth.addEventListener("click", function(){
             currentMonth.setMonth(currentMonth.getMonth() + 1);
             updateMonthYear();
-            renderCalender();
+            renderCalendar();
         })
         monthContainer.appendChild(nextMonth);
 
@@ -147,13 +147,16 @@ function renderTask(taskObject) {
         });
         
         // Calendar
-        const calender = document.createElement("div");
-        calender.classList.add("calender");
-        scheduleWindow.appendChild(calender);
+        const calendar = document.createElement("div");
+        calendar.classList.add("calendar");
+        scheduleWindow.appendChild(calendar);
 
-        
-        function renderCalender() {
-            calender.innerHTML = "";
+        let selectedDay = null;
+        let selectedMonth = null;
+        let selectedYear = null;
+
+        function renderCalendar() {
+            calendar.innerHTML = "";
 
             // Calendar days
             const daysInMonth = new Date(currentMonth.getFullYear(),currentMonth.getMonth() + 1, 0);
@@ -161,17 +164,54 @@ function renderTask(taskObject) {
             // Empty spaces before first day
             for (let i = 0; i < currentMonth.getDay(); i++) {
                 const emptyDay = document.createElement("p");
-                calender.appendChild(emptyDay);
+                calendar.appendChild(emptyDay);
             }
 
-            // Actual calender days
-            for(let day = 1; day <= daysInMonth.getDate(); day++){
-                const dayElement = document.createElement("p");
+            // Actual calendar days with buttons
+            for (let day = 1; day <= daysInMonth.getDate(); day++){
+                const dayElement = document.createElement("button");
+                dayElement.classList.add("calendar-day");
                 dayElement.textContent = day;
-                calender.appendChild(dayElement); 
-            }   
+
+                // Check if this day is today
+                if (
+                    day === today.getDate() &&
+                    currentMonth.getMonth() === today.getMonth() &&
+                    currentMonth.getFullYear() === today.getFullYear()
+                ) {
+                    dayElement.classList.add("today");
+                }
+                
+                // Check if this day was previously selected
+                if (
+                    day === selectedDay &&
+                    currentMonth.getMonth() === selectedMonth &&
+                    currentMonth.getFullYear() === selectedYear
+                ) {
+                    dayElement.classList.add("selected");
+                }
+
+                // Select a day
+                dayElement.addEventListener("click", function() {
+                    const oldSelectedDay = calendar.querySelector(".selected");
+
+                    if (oldSelectedDay) {
+                        oldSelectedDay.classList.remove("selected");
+                    }
+
+                    selectedDay = day;
+                    selectedMonth = currentMonth.getMonth();
+                    selectedYear = currentMonth.getFullYear();
+
+                    dayElement.classList.add("selected");
+
+                    console.log(selectedDay);
+                });
+                
+                calendar.appendChild(dayElement); 
+            } 
         }
-        renderCalender();
+        renderCalendar();
         
         
         // Cancel button
