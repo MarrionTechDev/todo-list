@@ -127,8 +127,30 @@ ul {
 }
 
 .task-checkbox {
+    appearance: none;
     width: 16px;
     height: 16px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    position: relative;
+}
+
+.task-checkbox:checked {
+    background-color: #D94A45;
+    border-color: #D94A45;
+}
+
+.task-checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
 }
 
 .task span {
@@ -197,7 +219,7 @@ h2 {
     margin-bottom: 15px;
 }
 
-.schedule-window {
+.reminder-window {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -213,10 +235,58 @@ h2 {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.schedule-heading {
+.reminder-heading {
     margin: 0 0 20px 0;
     font-size: 24px;
     font-weight: 600;
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    color: #555;
+    cursor: pointer;
+}
+
+.reminder-info {
+    margin: 0 0 20px 0;
+    padding: 12px 15px;
+    background: #fff4ec;
+    border: 1px solid #f3d5c2;
+    border-radius: 8px;
+}
+
+.reminder-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.clear-reminder-button {
+    border: none;
+    background: transparent;
+    color: #777;
+    cursor: pointer;
+    font: inherit;
+}
+
+.reminder-label {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.reminder-date {
+    margin: 4px 0 0 0;
+    font-size: 16px;
+    color: #e9854a;
+    font-weight: 500;
 }
 
 .month-container {
@@ -284,6 +354,7 @@ h2 {
 
 .time-label {
     font-size: 17px;
+    margin-right: 5px;
 }
 
 .time-input {
@@ -297,7 +368,7 @@ h2 {
     cursor: pointer;
 }
 
-.schedule-buttons {
+.reminder-buttons {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
