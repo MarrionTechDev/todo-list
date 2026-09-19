@@ -66,7 +66,6 @@ function renderTask(taskObject) {
         taskObject.completed = checkbox.checked;
 
         saveTasks();
-
         updateTaskCount();
     });
 
@@ -75,7 +74,24 @@ function renderTask(taskObject) {
 
     // Scheduler
     const scheduleButton = document.createElement("button");
-    scheduleButton.textContent = "Schedule";
+    scheduleButton.innerHTML = `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+    `;
 
     scheduleButton.addEventListener("click", function() {
 
@@ -86,6 +102,7 @@ function renderTask(taskObject) {
         // Heading
         const heading = document.createElement("h1");
         heading.textContent = "Schedule";
+        heading.classList.add("schedule-heading");
         scheduleWindow.appendChild(heading);
         
         // Current month
@@ -151,9 +168,9 @@ function renderTask(taskObject) {
         calendar.classList.add("calendar");
         scheduleWindow.appendChild(calendar);
 
-        let selectedDay = null;
-        let selectedMonth = null;
-        let selectedYear = null;
+        let selectedDay = new Date().getDate();
+        let selectedMonth = new Date().getMonth();
+        let selectedYear = new Date().getFullYear();
 
         function renderCalendar() {
             calendar.innerHTML = "";
@@ -204,16 +221,23 @@ function renderTask(taskObject) {
                     selectedYear = currentMonth.getFullYear();
 
                     dayElement.classList.add("selected");
-
-                    console.log(selectedDay);
                 });
-                
+
                 calendar.appendChild(dayElement); 
             } 
         }
         renderCalendar();
+
+        const timeLabel = document.createElement("label");
+        timeLabel.textContent = "Time:";
+        timeLabel.classList.add("time-label");
+        scheduleWindow.appendChild(timeLabel);
         
-        
+        const timeInput = document.createElement("input");
+        timeInput.type = "time";
+        timeInput.classList.add("time-input");
+        scheduleWindow.appendChild(timeInput);
+
         // Cancel button
         const cancelButton = document.createElement("button");
         cancelButton.textContent = "Cancel";
@@ -221,12 +245,36 @@ function renderTask(taskObject) {
         cancelButton.addEventListener("click", function() {
                 scheduleWindow.remove();
         });
-        scheduleWindow.appendChild(cancelButton);
     
         // Save button
-        const savebutton = document.createElement("button");
-        savebutton.textContent = "Save";
-        scheduleWindow.appendChild(savebutton);
+        const saveButton = document.createElement("button");
+        saveButton.textContent = "Save";
+        saveButton.addEventListener("click", function() {
+
+            const scheduledDate = new Date(
+                selectedYear,
+                selectedMonth,
+                selectedDay
+            );
+
+            taskObject.schedule = {
+                date: scheduledDate,
+                time: timeInput.value
+            };
+
+            saveTasks();
+            scheduleWindow.remove();
+
+        });
+
+        // Button Container
+        const buttonContainer = document.createElement("div");
+        buttonContainer.classList.add("schedule-buttons");
+
+        buttonContainer.appendChild(cancelButton);
+        buttonContainer.appendChild(saveButton);
+
+        scheduleWindow.appendChild(buttonContainer);
 
     });
 
@@ -269,6 +317,7 @@ function renderTask(taskObject) {
             editing = false;
 
             saveTasks();
+
         } else{
             editInput = document.createElement("input");
 
@@ -313,9 +362,7 @@ function renderTask(taskObject) {
         tasks.splice(taskIndex, 1);
 
         updateTaskCount();
-
         updateEmptyMessage();
-
         saveTasks();
 
         li.remove();
@@ -324,11 +371,10 @@ function renderTask(taskObject) {
 
     li.appendChild(checkbox);
     li.appendChild(span);
+    li.appendChild(scheduleButton);
     li.appendChild(editButton);
     li.appendChild(deleteButton);
-    li.appendChild(scheduleButton);
     
-
     taskList.appendChild(li);
 
 }

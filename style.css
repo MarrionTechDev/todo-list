@@ -209,6 +209,14 @@ h2 {
     background: white;
     border-radius: 12px;
     padding: 20px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.schedule-heading {
+    margin: 0 0 20px 0;
+    font-size: 24px;
+    font-weight: 600;
 }
 
 .month-container {
@@ -272,6 +280,28 @@ h2 {
 
 .calendar-day.today.selected::after {
     background: white;
+}
+
+.time-label {
+    font-size: 17px;
+}
+
+.time-input {
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 16px;
+    margin-top: 6px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+}
+
+.schedule-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
 }
 
 footer {
