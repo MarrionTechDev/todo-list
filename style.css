@@ -13,6 +13,137 @@ form {
     gap: 8px;
 }
 
+.task-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.recurring-overlay {
+    position: fixed;
+    inset: 0;
+    
+    background-color: rgba(0, 0, 0, 0.4);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.recurring-modal {
+    background-color: white;
+    width: 90%;
+    max-width: 500px;
+    max-height: 85vh;
+    padding: 20px;
+    border-radius: 12px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+.recurring-task {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.recurring-delete {
+    margin-left: auto;
+}
+
+.recurring-task span {
+    overflow-wrap: anywhere;
+}
+
+.task-arrow {
+    color: #E8894A;
+    font-size: 22px;
+    margin-right: 8px;
+}
+
+.recurring-task-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.recurring-modal::-webkit-scrollbar {
+    width: 8px;
+}
+
+.recurring-modal::-webkit-scrollbar-button {
+    display: none;
+}
+
+.recurring-modal::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 10px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.close-button {
+    background: none;
+    color: #78716C;
+    font-size: 24px;
+    padding: 2px 6px;
+}
+
+.close-button:hover {
+    background: none;
+    color: #292524;
+}
+
+.task-composer {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.task-composer input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.task-composer button {
+    width: 42px;
+    font-size: 24px;
+    padding: 0;
+}
+
+.task-entry {
+    display: flex;
+    gap: 8px;
+    padding: 8px 4px;
+    border-bottom: 1px solid #ddd;
+}
+
+.task-entry input {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+.weekday-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 #taskInput {
     flex-grow: 1;
     padding: 10px 12px;
