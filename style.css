@@ -40,6 +40,13 @@ form {
     overflow-y: auto;
 }
 
+.recurring-indicator {
+    flex-grow: 0;
+    color: #E8894A;
+    font-size: 18px;
+    margin-right: 8px;
+}
+
 .recurring-task {
     display: flex;
     align-items: center;
@@ -262,7 +269,7 @@ ul {
     height: 16px;
 }
 
-.task span {
+.task > span:first-of-type {
     flex-grow: 1;
     line-height: 1.4;
 }

@@ -1,5 +1,15 @@
 const tasks = [];
 
+const recurringTasks = {
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: []
+};
+
 const taskInput = document.querySelector("#taskInput");
 const form = document.querySelector("form");
 const taskList = document.querySelector("ul");
@@ -21,6 +31,9 @@ function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+function saveRecurringTasks() {
+    localStorage.setItem("recurringTasks", JSON.stringify(recurringTasks));
+}
 
 function loadTasks() {
     const savedTasks = localStorage.getItem("tasks");
@@ -29,6 +42,16 @@ function loadTasks() {
         const loadedTasks = JSON.parse(savedTasks);
 
         tasks.push(...loadedTasks);
+    }
+}
+
+function loadRecurringTasks() {
+    const savedRecurringTasks = localStorage.getItem("recurringTasks");
+
+    if (savedRecurringTasks) {
+        const loadedRecurringTasks = JSON.parse(savedRecurringTasks);
+
+        Object.assign(recurringTasks, loadedRecurringTasks);
     }
 }
 
@@ -50,6 +73,70 @@ function updateEmptyMessage() {
     } else {
         emptyMessage.style.display = "none";
     }
+}
+
+function getTodayKey() {
+    const days = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday"
+    ];
+
+    return days[new Date().getDay()];
+}
+
+function getTodayRecurringTasks() {
+    const todayKey = getTodayKey();
+
+    return recurringTasks[todayKey];
+}
+
+function removeDuplicateRecurringTasks() {
+    const seen = new Set();
+
+    for (let i = tasks.length - 1; i >= 0; i--) {
+        const task = tasks[i];
+
+        if (task.recurring) {
+            const key = `${task.name}-${task.recurringDate}`;
+
+            if (seen.has(key)) {
+                tasks.splice(i, 1);
+            } else {
+                seen.add(key);
+            }
+        }
+    }
+}
+
+function addTodaysRecurringTasks() {
+    const todaysTasks = getTodayRecurringTasks();
+
+    const today = new Date().toISOString().split("T")[0];
+
+    todaysTasks.forEach(function(taskName) {
+
+        const alreadyExists = tasks.some(function(task) {
+            return task.name === taskName &&
+                task.recurring === true &&
+                task.recurringDate === today;
+        });
+
+        if (!alreadyExists) {
+            const taskObject = {
+                name: taskName,
+                completed: false,
+                recurring: true,
+                recurringDate: today
+            };
+
+            tasks.push(taskObject);
+        }
+    });
 }
 
 function renderTask(taskObject) {
@@ -199,6 +286,15 @@ function renderTask(taskObject) {
 
     li.appendChild(checkbox);
     li.appendChild(span);
+
+    if (taskObject.recurring) {
+        const recurringIndicator = document.createElement("span");
+        recurringIndicator.textContent = "↻";
+        recurringIndicator.classList.add("recurring-indicator");
+
+        li.appendChild(recurringIndicator);
+    }
+
     li.appendChild(editButton);
     li.appendChild(deleteButton);
     
@@ -208,10 +304,20 @@ function renderTask(taskObject) {
 }
 
 loadTasks();
+loadRecurringTasks();
+removeDuplicateRecurringTasks();
+addTodaysRecurringTasks();
+saveTasks();
+
 updateTaskCount();
 updateEmptyMessage();
 
-tasks.forEach(function(task) {
+
+const sortedTasks = [...tasks].sort(function(a, b) {
+    return Number(b.recurring) - Number(a.recurring);
+});
+
+sortedTasks.forEach(function(task) {
     renderTask(task);
 });
 
@@ -287,11 +393,45 @@ recurringBtn.addEventListener("click", function() {
         const dayContainer = document.createElement("div");
         dayContainer.classList.add("day-container");
 
+        const dayKey = day.toLowerCase();
+
         const weekday = document.createElement("h3");
         weekday.textContent = day;
 
         const taskContainer = document.createElement("div");
         taskContainer.classList.add("recurring-task-container");
+
+        recurringTasks[dayKey].forEach(function(taskName) {
+
+            const taskRow = document.createElement("div");
+            taskRow.classList.add("recurring-task");
+
+            const arrow = document.createElement("span");
+            arrow.textContent = "›";
+            arrow.classList.add("task-arrow");
+
+            const taskText = document.createElement("span");
+            taskText.textContent = taskName;
+
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "×";
+            deleteButton.classList.add("recurring-delete");
+
+            deleteButton.addEventListener("click", function() {
+                const taskIndex = recurringTasks[dayKey].indexOf(taskName);
+                recurringTasks[dayKey].splice(taskIndex, 1);
+
+                saveRecurringTasks();
+                taskRow.remove();
+            });
+
+            taskRow.appendChild(arrow);
+            taskRow.appendChild(taskText);
+            taskRow.appendChild(deleteButton);
+
+            taskContainer.appendChild(taskRow);
+        });
+
 
         const taskComposer = document.createElement("div");
         taskComposer.classList.add("task-composer");
@@ -310,6 +450,9 @@ recurringBtn.addEventListener("click", function() {
             if (taskName === "") {
                 return;
             }
+
+            recurringTasks[dayKey].push(taskName);
+            saveRecurringTasks();
 
             const taskRow = document.createElement("div");
             taskRow.classList.add("recurring-task");
@@ -351,6 +494,8 @@ recurringBtn.addEventListener("click", function() {
     });
             
 });
+
+console.log(getTodayRecurringTasks());
 
 clearTasks.addEventListener("click", function() {
 
