@@ -1,4 +1,7 @@
 const tasks = [];
+const recurringTasks = [];
+const skippedRecurringTasks = [];
+
 
 const taskInput = document.querySelector("#taskInput");
 const form = document.querySelector("form");
@@ -20,6 +23,25 @@ function saveTasks() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+function saveRecurringTasks() {
+    localStorage.setItem("recurringTasks", JSON.stringify(recurringTasks));
+}
+
+function saveSkippedRecurringTasks() {
+    localStorage.setItem("skippedRecurringTasks", JSON.stringify(skippedRecurringTasks));
+}
+
+function loadSkippedRecurringTasks() {
+    const savedSkippedTasks = localStorage.getItem("skippedRecurringTasks");
+
+    if (savedSkippedTasks) {
+        const loadedSkippedTasks = JSON.parse(savedSkippedTasks);
+
+        loadedSkippedTasks.forEach(function(task) {
+            skippedRecurringTasks.push(task);
+        });
+    }
+}
 
 function loadTasks() {
     const savedTasks = localStorage.getItem("tasks");
@@ -27,8 +49,74 @@ function loadTasks() {
     if (savedTasks){
         const loadedTasks = JSON.parse(savedTasks);
 
-        tasks.push(...loadedTasks);
+        loadedTasks.forEach(function(task) {
+
+            if (task.recurringId) {
+                const todayDate =
+                    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+                if (task.date !== todayDate) {
+                    return;
+                }
+            }
+
+            tasks.push(task);
+        });
     }
+}
+
+function loadRecurringTasks() {
+    const savedRecurringTasks = localStorage.getItem("recurringTasks");
+
+    if (savedRecurringTasks) {
+        const loadedRecurringTasks = JSON.parse(savedRecurringTasks);
+
+        loadedRecurringTasks.forEach(function(task) {
+            recurringTasks.push(task);
+        });
+    }
+}
+
+function generateRecurringTasksForToday() {
+    const today = new Date();
+
+    const todayName = today.toLocaleDateString("en-US", {
+        weekday: "long"
+    });
+
+    const todayDate =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+    recurringTasks.forEach(function(recurringTask) {
+
+        if (recurringTask.days.includes(todayName)) {
+
+            const alreadyExists = tasks.some(function(task) {
+                return task.recurringId === recurringTask.id &&
+                       task.date === todayDate;
+            });
+
+            const wasSkipped = skippedRecurringTasks.includes(
+                `${recurringTask.id}-${todayDate}`
+            );
+
+            if (!alreadyExists && !wasSkipped) {
+
+                const taskObject = {
+                    id: `${recurringTask.id}-${todayDate}`,
+                    recurringId: recurringTask.id,
+                    name: recurringTask.name,
+                    completed: false,
+                    date: todayDate
+                };
+
+                tasks.push(taskObject);
+
+            }
+        }
+    });
+
+    saveTasks();
 }
 
 function updateTaskCount() {
@@ -73,8 +161,146 @@ function renderTask(taskObject) {
     const span = document.createElement("span");
     span.textContent = taskObject.name;
 
+    const recurringButton = document.createElement("button");
+    recurringButton.classList.add("recurring-button");
+
+    const savedRecurringTask = recurringTasks.find(function(task) {
+        return task.id === taskObject.recurringId;
+    });
+
+    if (savedRecurringTask && savedRecurringTask.days.length > 0) {
+        recurringButton.textContent = "⟳";
+    } else {
+        recurringButton.textContent = "↻";
+    }
+
+    recurringButton.addEventListener("click", function(){
+
+        let recurringTask = recurringTasks.find(function(task) {
+            return task.id === taskObject.recurringId;
+        });
+
+        if (!recurringTask) {
+            recurringTask = {
+                id: Date.now(),
+                name: taskObject.name,
+                days: []
+            };
+        }
+
+        const recurringWindow = document.createElement("div");
+        recurringWindow.classList.add("recurring-window");
+
+        const closeButton = document.createElement("button");
+        closeButton.textContent = "×";
+        closeButton.classList.add("close-button");
+
+        const closeContainer = document.createElement("div");
+        closeContainer.classList.add("close-container");
+
+        closeContainer.appendChild(closeButton);
+        recurringWindow.appendChild(closeContainer);
+
+        //Weeday Container
+        const weekdayContainer = document.createElement("div");
+        weekdayContainer.classList.add("weekdays");
+
+        recurringWindow.appendChild(weekdayContainer);
+
+        const weekdays = [
+            "Sunday","Monday","Tuesday","Wednesday",
+            "Thursday","Friday","Saturday"
+        ];
+
+        weekdays.forEach(function(day) {
+
+            const weekday = document.createElement("button");
+            weekday.textContent = day.charAt(0);
+
+            if (recurringTask.days.includes(day)) {
+                weekday.classList.add("selected");
+            }
+
+            weekday.addEventListener("click", function() {
+                weekday.classList.toggle("selected");
+
+                if (weekday.classList.contains("selected")) {
+                    recurringTask.days.push(day);
+                } else {
+                    const index = recurringTask.days.indexOf(day);
+                    recurringTask.days.splice(index, 1);
+                }
+
+                // Update recurring indicator
+                if (recurringTask.days.length > 0) {
+                    recurringButton.textContent = "⟳";
+                } else {
+                    recurringButton.textContent = "↻";
+
+                    const taskIndex = recurringTasks.findIndex(function(task) {
+                        return task.id === recurringTask.id;
+                    });
+
+                    if (taskIndex !== -1) {
+                        recurringTasks.splice(taskIndex, 1);
+                        saveRecurringTasks();
+                    }
+                }
+            });
+
+            weekdayContainer.appendChild(weekday);
+        });
+
+        li.appendChild(recurringWindow);
+
+        closeButton.addEventListener("click", function() {
+
+            if (recurringTask.days.length > 0) {
+
+                const existingTask = recurringTasks.find(function(task) {
+                    return task.id === recurringTask.id;
+                });
+
+                if (!existingTask) {
+                    recurringTasks.push(recurringTask);
+
+                    const taskIndex = tasks.indexOf(taskObject);
+
+                    if (taskIndex !== -1) {
+                        tasks.splice(taskIndex, 1);
+                    }
+
+                    li.remove();
+                }
+            }
+
+            saveRecurringTasks();
+            saveTasks();
+
+            generateRecurringTasksForToday();
+            renderAllTasks();
+
+            recurringWindow.remove();
+        });
+
+    })
+
     const editButton = document.createElement("button");
-    editButton.textContent = "Edit";
+    editButton.innerHTML = `
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        >
+            <path d="M4 20l4.5-1L19 8.5a2.12 2.12 0 0 0-3-3L5.5 16 4 20z"></path>
+        </svg>
+    `;
 
     let editInput;
     let editing = false;
@@ -88,39 +314,57 @@ function renderTask(taskObject) {
             const newName = editInput.value.trim();
 
             if (newName === ""){
+
                 taskObject.name = originalName;
-
                 span.textContent = originalName;
-
                 editInput.replaceWith(span);
-
-                editButton.textContent = "Edit";
-
+                editButton.innerHTML = `
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M4 20l4.5-1L19 8.5a2.12 2.12 0 0 0-3-3L5.5 16 4 20z"></path>
+                    </svg>
+                `;
                 editing = false;
 
                 return;
             }
 
             taskObject.name = newName;
-
             span.textContent = taskObject.name;
-
             editInput.replaceWith(span);
-
-            editButton.textContent = "Edit";
-
+            editButton.innerHTML = `
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M4 20l4.5-1L19 8.5a2.12 2.12 0 0 0-3-3L5.5 16 4 20z"></path>
+                    </svg>
+                `;
             editing = false;
 
             saveTasks();
         } else{
+            
             editInput = document.createElement("input");
-
             editInput.classList.add("edit-input");
-        
             editInput.value = taskObject.name;
-
             span.replaceWith(editInput);
-
             editButton.textContent = "Save";
 
             editing = true;
@@ -152,21 +396,24 @@ function renderTask(taskObject) {
     `;
     deleteButton.addEventListener("click", function(event) {
         const taskIndex = tasks.indexOf(taskObject);
+
+        if (taskObject.recurringId) {
+            skippedRecurringTasks.push(taskObject.id);
+            saveSkippedRecurringTasks();
+        }
         
         tasks.splice(taskIndex, 1);
 
         updateTaskCount();
-
         updateEmptyMessage();
-
         saveTasks();
 
         li.remove();
-
     });
 
     li.appendChild(checkbox);
     li.appendChild(span);
+    li.appendChild(recurringButton);
     li.appendChild(editButton);
     li.appendChild(deleteButton);
     
@@ -175,16 +422,34 @@ function renderTask(taskObject) {
 
 }
 
+function renderAllTasks() {
+    taskList.innerHTML = "";
+
+    tasks
+        .filter(function(task) {
+            return task.recurringId !== undefined;
+        })
+        .forEach(function(task) {
+            renderTask(task);
+        });
+
+    tasks
+        .filter(function(task) {
+            return task.recurringId === undefined
+        })
+        .forEach(function(task) {
+            renderTask(task);
+        });
+}
+
 loadTasks();
-
+loadRecurringTasks();
+loadSkippedRecurringTasks();
+generateRecurringTasksForToday();
 updateTaskCount();
-
 updateEmptyMessage();
 
-tasks.forEach(function(task) {
-    renderTask(task);
-});
-
+renderAllTasks();
 
 form.addEventListener("submit", function(event) {
     event.preventDefault();
@@ -203,12 +468,9 @@ form.addEventListener("submit", function(event) {
     tasks.push(taskObject);
 
     updateTaskCount();
-
     updateEmptyMessage();
-
     saveTasks();
-
-    renderTask(taskObject);
+    renderAllTasks();
 
     taskInput.value = "";
 });

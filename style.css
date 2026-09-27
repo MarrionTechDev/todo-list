@@ -104,6 +104,8 @@ ul {
 }
 
 .task {
+    position: relative;
+    
     display: flex;
     align-items: center;
     gap: 10px;
@@ -154,6 +156,59 @@ section {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+/* Recurring pop up*/
+.recurring-window {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    z-index: 1000;
+}
+
+.recurring-window button {
+    margin-left: 0;
+}
+
+.close-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.weekdays {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.weekdays button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+
+    border-radius: 50%;
+
+    background-color: white;
+    color: #292524;
+    border: 1px solid #ddd;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.weekdays button.selected {
+    background-color: #E8894A;
+    color: white;
 }
 
 #currentDate {
