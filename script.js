@@ -2,11 +2,14 @@ const tasks = [];
 const recurringTasks = [];
 const skippedRecurringTasks = [];
 
+let points = 0;
+let totalPoints = 0;
 
 const taskInput = document.querySelector("#taskInput");
 const form = document.querySelector("form");
 const taskList = document.querySelector("ul");
 const taskCount = document.querySelector("#taskCount");
+const pointsDisplay = document.querySelector("#points");
 const clearTasks = document.querySelector("#clearTasks");
 const currentDate = document.querySelector("#currentDate");
 const emptyMessage = document.querySelector("#emptyMessage");
@@ -29,6 +32,22 @@ function saveRecurringTasks() {
 
 function saveSkippedRecurringTasks() {
     localStorage.setItem("skippedRecurringTasks", JSON.stringify(skippedRecurringTasks));
+}
+
+function savePoints() {
+    localStorage.setItem("points", points);
+}
+
+function saveTotalPoints() {
+    localStorage.setItem("totalPoints", totalPoints);
+}
+
+function loadTotalPoints() {
+    const savedTotalPoints = localStorage.getItem("totalPoints");
+
+    if (savedTotalPoints) {
+        totalPoints = Number(savedTotalPoints);
+    }
 }
 
 function loadSkippedRecurringTasks() {
@@ -75,6 +94,34 @@ function loadRecurringTasks() {
             recurringTasks.push(task);
         });
     }
+}
+
+function loadPoints() {
+    const savedPoints = localStorage.getItem("points");
+
+    if (savedPoints) {
+        points = Number(savedPoints);
+    }
+}
+
+function finishDay() {
+    totalPoints += points;
+
+    saveTotalPoints();
+
+    for (let i = tasks.length - 1; i >= 0; i--) {
+        if (tasks[i].completed) {
+            tasks.splice(i, 1);
+        }
+    }
+
+    points = 0;
+    savePoints();
+
+    saveTasks();
+    updateTaskCount();
+    updateEmptyMessage();
+    renderAllTasks();
 }
 
 function generateRecurringTasksForToday() {
@@ -130,6 +177,7 @@ function updateTaskCount() {
     });
 
     taskCount.textContent = `${completedTasks} / ${tasks.length} completed`;
+    pointsDisplay.textContent = `⭐ Points: ${totalPoints + points}`;
 }
 
 function updateEmptyMessage() {
@@ -157,7 +205,15 @@ function renderTask(taskObject) {
     checkbox.addEventListener("change", function() {
 
         taskObject.completed = checkbox.checked;
+
+        if (checkbox.checked) {
+            points++;
+        } else if (points > 0) {
+            points--;
+        }
+        
         saveTasks();
+        savePoints();
         updateTaskCount();
         renderAllTasks();
 
@@ -541,6 +597,9 @@ function renderAllTasks() {
 loadTasks();
 loadRecurringTasks();
 loadSkippedRecurringTasks();
+loadTotalPoints();
+loadPoints();
+
 generateRecurringTasksForToday();
 updateTaskCount();
 updateEmptyMessage();

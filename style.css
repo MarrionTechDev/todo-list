@@ -81,7 +81,6 @@ button:active {
 
 .task-summary {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-top: 10px;
 }
@@ -90,6 +89,17 @@ button:active {
     margin: 10px 0;
     color: #78716C;
     font-size: 14px;
+}
+
+#points {
+    margin-left: 15px;
+    color: #78716C;
+    font-size: 15px;
+}
+
+#clearTasks {
+    margin-left: auto;
+    background-color: #D94A45;
 }
 
 ul {
