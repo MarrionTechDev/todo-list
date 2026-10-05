@@ -105,23 +105,27 @@ ul {
 
 .task {
     position: relative;
-    
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    
+
     background-color: white;
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 8px;
-    
+
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 
     transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.task button {
-    margin-left: auto;
+.task-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.task-row span {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.4;
 }
 
 .task:hover {
@@ -133,14 +137,106 @@ ul {
     height: 16px;
 }
 
-.task span {
-    flex-grow: 1;
-    line-height: 1.4;
-}
-
 .task-checkbox:checked + span {
     text-decoration: line-through;
     color: #A8A29E;
+}
+
+.task:has(.task-checkbox:checked) {
+    background-color: #f0f0f0;
+}
+
+.task-checkbox:checked {
+    accent-color: #D94A45;
+}
+
+.task-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.description-area {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.description-input {
+    width: 100%;
+    min-height: 70px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+
+    border: 1px solid #bbb;
+    border-radius: 6px;
+
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    resize: vertical;
+}
+
+.description-input:focus {
+    outline: 2px solid #E8894A;
+    border-color: #E8894A;
+}
+
+.description-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.recurring-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.edit-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.description-button.open {
+    transform: rotate(90deg);
+}
+
+.completed-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin: 8px 0;
+    color: #78716C;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.completed-divider::before,
+.completed-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: #ddd;
 }
 
 section {

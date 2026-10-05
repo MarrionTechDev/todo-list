@@ -106,6 +106,7 @@ function generateRecurringTasksForToday() {
                     id: `${recurringTask.id}-${todayDate}`,
                     recurringId: recurringTask.id,
                     name: recurringTask.name,
+                    description: recurringTask.description || "",
                     completed: false,
                     date: todayDate
                 };
@@ -144,6 +145,9 @@ function renderTask(taskObject) {
     const li = document.createElement("li");
     li.classList.add("task");
 
+    const taskRow = document.createElement("div");
+    taskRow.classList.add("task-row");
+
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.classList.add("task-checkbox");
@@ -151,15 +155,64 @@ function renderTask(taskObject) {
     checkbox.checked = taskObject.completed;
 
     checkbox.addEventListener("change", function() {
+
         taskObject.completed = checkbox.checked;
-
         saveTasks();
-
         updateTaskCount();
+        renderAllTasks();
+
     });
 
     const span = document.createElement("span");
     span.textContent = taskObject.name;
+
+    const descriptionButton = document.createElement("button");
+    descriptionButton.classList.add("description-button");
+    descriptionButton.textContent = ">";
+
+    const descriptionArea = document.createElement("div");
+    descriptionArea.classList.add("description-area");
+
+    descriptionArea.style.display = "none";
+
+    const descriptionInput = document.createElement("textarea");
+    descriptionInput.classList.add("description-input");
+    descriptionInput.placeholder = "Add notes or reminders...";
+
+    descriptionInput.value = taskObject.description || "";
+
+    descriptionInput.addEventListener("input", function() {
+
+        taskObject.description = descriptionInput.value;
+
+        if (taskObject.recurringId) {
+
+            const recurringTask = recurringTasks.find(function(task) {
+                return task.id === taskObject.recurringId;
+            });
+
+            if (recurringTask) {
+                recurringTask.description = descriptionInput.value;
+                saveRecurringTasks();
+            }
+        }
+
+        saveTasks();
+    });
+
+    descriptionArea.appendChild(descriptionInput);
+
+    descriptionButton.addEventListener("click", function() {
+
+        if (descriptionArea.style.display === "none") {
+            descriptionArea.style.display = "block";
+            descriptionButton.classList.add("open");
+        } else {
+            descriptionArea.style.display = "none";
+            descriptionButton.classList.remove("open");
+        }
+
+    });
 
     const recurringButton = document.createElement("button");
     recurringButton.classList.add("recurring-button");
@@ -184,7 +237,8 @@ function renderTask(taskObject) {
             recurringTask = {
                 id: Date.now(),
                 name: taskObject.name,
-                days: []
+                days: [],
+                description: taskObject.description || ""
             };
         }
 
@@ -286,6 +340,7 @@ function renderTask(taskObject) {
     })
 
     const editButton = document.createElement("button");
+    editButton.classList.add("edit-button");
     editButton.innerHTML = `
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -411,12 +466,20 @@ function renderTask(taskObject) {
         li.remove();
     });
 
-    li.appendChild(checkbox);
-    li.appendChild(span);
-    li.appendChild(recurringButton);
-    li.appendChild(editButton);
-    li.appendChild(deleteButton);
-    
+    const taskActions = document.createElement("div");
+    taskActions.classList.add("task-actions");
+
+    taskActions.appendChild(descriptionButton);
+    taskActions.appendChild(recurringButton);
+    taskActions.appendChild(editButton);
+    taskActions.appendChild(deleteButton);
+
+    taskRow.appendChild(checkbox);
+    taskRow.appendChild(span);
+    taskRow.appendChild(taskActions);
+
+    li.appendChild(taskRow);
+    li.appendChild(descriptionArea);
 
     taskList.appendChild(li);
 
@@ -425,17 +488,50 @@ function renderTask(taskObject) {
 function renderAllTasks() {
     taskList.innerHTML = "";
 
+    // Uncompleted recurring tasks
     tasks
         .filter(function(task) {
-            return task.recurringId !== undefined;
+            return task.recurringId !== undefined && !task.completed;
         })
         .forEach(function(task) {
             renderTask(task);
         });
 
+    // Uncompleted normal tasks
     tasks
         .filter(function(task) {
-            return task.recurringId === undefined
+            return task.recurringId === undefined && !task.completed;
+        })
+        .forEach(function(task) {
+            renderTask(task);
+        });
+
+    // Completed divider
+    const hasCompletedTasks = tasks.some(function(task) {
+        return task.completed;
+    });
+
+    if (hasCompletedTasks) {
+        const divider = document.createElement("li");
+        divider.classList.add("completed-divider");
+        divider.textContent = "Completed";
+
+        taskList.appendChild(divider);
+    }
+
+    // Completed recurring tasks
+    tasks
+        .filter(function(task) {
+            return task.recurringId !== undefined && task.completed;
+        })
+        .forEach(function(task) {
+            renderTask(task);
+        });
+
+    // Completed normal tasks
+    tasks
+        .filter(function(task) {
+            return task.recurringId === undefined && task.completed;
         })
         .forEach(function(task) {
             renderTask(task);
@@ -462,6 +558,7 @@ form.addEventListener("submit", function(event) {
 
     const taskObject = {
         name: task,
+        description: "",
         completed: false
     };
 
