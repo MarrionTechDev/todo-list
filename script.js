@@ -101,16 +101,20 @@ function loadPoints() {
 
     if (savedPoints !== null) {
         points = Number(savedPoints);
-        return;
     }
+
+    let completedTasks = 0;
 
     tasks.forEach(function(task) {
         if (task.completed) {
-            points++;
+            completedTasks++;
         }
     });
 
-    savePoints();
+    if (completedTasks > points) {
+        points += completedTasks - points;
+        savePoints();
+    }
 }
 
 function finishDay() {
