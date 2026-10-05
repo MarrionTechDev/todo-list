@@ -99,9 +99,18 @@ function loadRecurringTasks() {
 function loadPoints() {
     const savedPoints = localStorage.getItem("points");
 
-    if (savedPoints) {
+    if (savedPoints !== null) {
         points = Number(savedPoints);
+        return;
     }
+
+    tasks.forEach(function(task) {
+        if (task.completed) {
+            points++;
+        }
+    });
+
+    savePoints();
 }
 
 function finishDay() {
