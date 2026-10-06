@@ -201,6 +201,24 @@ function updateEmptyMessage() {
     }
 }
 
+function showRecurringMessage(message) {
+
+    const notification = document.createElement("div");
+    notification.classList.add("recurring-notification");
+    notification.textContent = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(function() {
+        notification.classList.add("hide");
+
+        setTimeout(function() {
+            notification.remove();
+        }, 300);
+
+    }, 3000);
+}
+
 function renderTask(taskObject) {
 
     const li = document.createElement("li");
@@ -292,6 +310,7 @@ function renderTask(taskObject) {
 
     if (savedRecurringTask && savedRecurringTask.days.length > 0) {
         recurringButton.textContent = "⟳";
+        recurringButton.classList.add("active");
     } else {
         recurringButton.textContent = "↻";
     }
@@ -368,6 +387,13 @@ function renderTask(taskObject) {
                         recurringTasks.splice(taskIndex, 1);
                         saveRecurringTasks();
                     }
+
+                    const currentTaskIndex = tasks.indexOf(taskObject);
+
+                    if (currentTaskIndex !== -1) {
+                        tasks.splice(currentTaskIndex, 1);
+                        saveTasks();
+                    }
                 }
             });
 
@@ -386,26 +412,49 @@ function renderTask(taskObject) {
 
                 if (!existingTask) {
                     recurringTasks.push(recurringTask);
+                }
 
+                const todayName = today.toLocaleDateString("en-US", {
+                    weekday: "long"
+                });
+
+                const todayDate =
+                    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
+                if (recurringTask.days.includes(todayName)) {
+
+                    // Convert this task into today's recurring occurrence
+                    taskObject.id = `${recurringTask.id}-${todayDate}`;
+                    taskObject.recurringId = recurringTask.id;
+                    taskObject.date = todayDate;
+
+                } else {
+
+                    // This task is not scheduled for today
                     const taskIndex = tasks.indexOf(taskObject);
 
                     if (taskIndex !== -1) {
                         tasks.splice(taskIndex, 1);
                     }
 
-                    li.remove();
+                    showRecurringMessage(
+                        `"${taskObject.name}" is scheduled for ${recurringTask.days.join(", ")}.`
+                    );
+
                 }
+
             }
 
             saveRecurringTasks();
             saveTasks();
 
             generateRecurringTasksForToday();
+            updateTaskCount();
+            updateEmptyMessage();
             renderAllTasks();
 
             recurringWindow.remove();
         });
-
     })
 
     const editButton = document.createElement("button");
@@ -463,6 +512,18 @@ function renderTask(taskObject) {
             }
 
             taskObject.name = newName;
+
+            if (taskObject.recurringId) {
+                const recurringTask = recurringTasks.find(function(task) {
+                    return task.id === taskObject.recurringId;
+                });
+
+                if (recurringTask) {
+                    recurringTask.name = newName;
+                    saveRecurringTasks();
+                }
+            }
+
             span.textContent = taskObject.name;
             editInput.replaceWith(span);
             editButton.innerHTML = `
